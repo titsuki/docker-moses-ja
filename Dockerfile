@@ -57,6 +57,11 @@ WORKDIR /home/moses/fast_align
 RUN cmake .
 RUN make
 
+RUN wget -O wikipedia-parallel-titles.zip "https://github.com/clab/wikipedia-parallel-titles/archive/master.zip"
+RUN unzip wikipedia-parallel-titles.zip
+RUN rm wikipedia-parallel-titles.zip
+RUN mv wikipedia-parallel-titles-master wikipedia-parallel-titles
+
 WORKDIR /home/moses/
 RUN mkdir -p mosesdecoder/tools
 RUN cp giza-pp/GIZA++-v2/GIZA++ mosesdecoder/tools
