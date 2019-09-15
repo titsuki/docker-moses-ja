@@ -52,14 +52,21 @@ $ paste -d$'\t' train.en train.ja | perl -nple 's/\t/ \|\|\| /' > text.en-ja
 $ paste -d$'\t' train.ja train.en | perl -nple 's/\t/ \|\|\| /' > text.ja-en
 ```
 
-### 4. Train Phrase based model
+### 4. Create alignment
+
+```
+$ ../fast_align/fast_align -i text.en-ja -d -o -v > forward.align
+$ ../fast_align/fast_align -i text.ja-en -d -o -v > backward.align
+```
+
+### 5. Train Phrase based model
 
 + TBD
 
-### 5. Train OSM
+### 6. Train OSM
 
 + TBD
 
-### 6. Predict
+### 7. Predict
 
 + TBD
