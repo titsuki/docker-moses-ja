@@ -57,6 +57,7 @@ $ paste -d$'\t' train.ja train.en | perl -nple 's/\t/ \|\|\| /' > text.ja-en
 ```
 $ ../fast_align/fast_align -i text.en-ja -d -o -v > forward.align
 $ ../fast_align/fast_align -i text.ja-en -d -o -v > backward.align
+$ ../fast_align/atools -i forward.align -j backward.align -c grow-diag-final-and > grow-diag-final-and.align
 ```
 
 ### 5. Train Phrase based model
