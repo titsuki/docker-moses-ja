@@ -63,20 +63,30 @@ $ cd /home/moses/mosesdecoder
 $ mkdir model && cd model && ln -s /home/moses/wikipedia-parallel-titles/aligned.grow-diag-final
 ```
 
-### 5. Train Phrase based model
+### 5. Train OSM
 
-+ The `--first-step 4` option skips the alignment process by GIZA++
++ TBD
 ```
 $ cd /home/moses/mosesdecoder
 $ ln -s /home/moses/wikipedia-parallel-titles/train.ja
 $ ln -s /home/moses/wikipedia-parallel-titles/train.en
-$ ./bin/lmplz -S 80% -o 5 --discount_fallback < train.ja > train.ja.arpa
-$ ./scripts/training/train-model.perl --external-bin-dir /home/moses/mosesdecoder/tools/ --corpus train --f en --e ja --lm 0:5:/home/moses/mosesdecoder/train.ja.arpa --first-step 4
+$ ln -s /home/moses/wikipedia-parallel-titles/forward.align
+$ ./scripts/OSM/OSM-Train.perl --corpus-f /home/moses/mosesdecoder/train.en \
+--corpus-e /home/moses/mosesdecoder/train.ja \
+--alignment /home/moses/mosesdecoder/forward.align \
+--moses-src-dir /home/moses/mosesdecoder \
+--out-dir osm-model
 ```
 
-### 6. Train OSM
+### 6. Train Phrase based model
 
-+ TBD
++ The `--first-step 4` option skips the alignment process by GIZA++
+```
+$ cd /home/moses/mosesdecoder
+
+$ ./bin/lmplz -S 80% -o 5 --discount_fallback < train.ja > train.ja.arpa
+$ ./scripts/training/train-model.perl --external-bin-dir /home/moses/mosesdecoder/tools/ --corpus train --f en --e ja --lm 0:5:/home/moses/mosesdecoder/train.ja.arpa --osm-model /home/moses/mosesdecoder/osm-model/operationLM.bin --first-step 4
+```
 
 ### 7. Predict
 
