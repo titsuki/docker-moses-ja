@@ -14,6 +14,7 @@
 
 Commands:
 ```
+$ cd /home/moses/wikipedia-parallel-titles
 $ wget http://dumps.wikimedia.org/jawiki/20190901/jawiki-20190901-page.sql.gz
 $ wget http://dumps.wikimedia.org/jawiki/20190901/jawiki-20190901-langlinks.sql.gz
 $ ./build-corpus.sh en jawiki-20190901 > titles.txt
@@ -35,8 +36,8 @@ The resulting ja-en titles are:
   + where `-CSD` is a option to avoid byte-level token splitting
      + (e.g., kanji character "笑" is composed of four bytes, so a byte-level token splitter generates the sequence of E7 AC 91 20; this is not a result we want.) 
 ```
-$ perl -CSD -ple 'my @a=split(" \\|\\|\\| "); $a[0] =~ s/^ +//; $a[0] =~ s/ +$//; $a[0] =~ s/ +//g; $_=join(" ",split(//,$a[0]))' < titles.txt > train.ja
-$ perl -CSD -ple 'my @a=split(" \\|\\|\\| "); $a[1] =~ s/^ +//; $a[1] =~ s/ +$//; $a[1] =~ s/ +/ /g; $_=$a[1]' < titles.txt > train.en
+$ perl -CSD -ple 'my @a=split(" \\|\\|\\| "); $a[0] =~ s/^ +//; $a[0] =~ s/ +$//; $a[0] =~ s/ +//g; $a[0] =~ s/</&lt/g; $a[0] =~ s/>/&gt/g; $_=join(" ",split(//,$a[0]))' < titles.txt > train.ja
+$ perl -CSD -ple 'my @a=split(" \\|\\|\\| "); $a[1] =~ s/^ +//; $a[1] =~ s/ +$//; $a[1] =~ s/ +/ /g; $a[1] =~ s/</&lt/g; $a[1] =~ s/>/&gt/g; $_=$a[1]' < titles.txt > train.en
 ```
 
 + Check tokenized corpus
@@ -57,12 +58,21 @@ $ paste -d$'\t' train.ja train.en | perl -nple 's/\t/ \|\|\| /' > text.ja-en
 ```
 $ ../fast_align/fast_align -i text.en-ja -d -o -v > forward.align
 $ ../fast_align/fast_align -i text.ja-en -d -o -v > backward.align
-$ ../fast_align/atools -i forward.align -j backward.align -c grow-diag-final-and > grow-diag-final-and.align
+$ ../fast_align/atools -i forward.align -j backward.align -c grow-diag-final > aligned.grow-diag-final
+$ cd /home/moses/mosesdecoder
+$ mkdir model && cd model && ln -s /home/moses/wikipedia-parallel-titles/aligned.grow-diag-final
 ```
 
 ### 5. Train Phrase based model
 
-+ TBD
++ The `--first-step 4` option skips the alignment process by GIZA++
+```
+$ cd /home/moses/mosesdecoder
+$ ln -s /home/moses/wikipedia-parallel-titles/train.ja
+$ ln -s /home/moses/wikipedia-parallel-titles/train.en
+$ ./bin/lmplz -S 80% -o 5 --discount_fallback < train.ja > train.ja.arpa
+$ ./scripts/training/train-model.perl --external-bin-dir /home/moses/mosesdecoder/tools/ --corpus train --f en --e ja --lm 0:5:/home/moses/mosesdecoder/train.ja.arpa --first-step 4
+```
 
 ### 6. Train OSM
 
