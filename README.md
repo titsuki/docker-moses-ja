@@ -132,5 +132,5 @@ app->start;
 $ ./myapp.pl daemon -m production -l http://*:8080
 ```
 
-+ Access http://localhost/8080/
-  + e.g., http://localhost/8080/hello
++ Access http://localhost:8080/
+  + e.g., http://localhost:8080/hello
