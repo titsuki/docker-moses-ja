@@ -83,7 +83,6 @@ $ ./scripts/OSM/OSM-Train.perl --corpus-f /home/moses/mosesdecoder/train.en \
 + The `--first-step 4` option skips the alignment process by GIZA++
 ```
 $ cd /home/moses/mosesdecoder
-
 $ ./bin/lmplz -S 80% -o 5 --discount_fallback < train.ja > train.ja.arpa
 $ ./scripts/training/train-model.perl --external-bin-dir /home/moses/mosesdecoder/tools/ --corpus train --f en --e ja --lm 0:5:/home/moses/mosesdecoder/train.ja.arpa --osm-model /home/moses/mosesdecoder/osm-model/operationLM.bin --first-step 4
 ```
