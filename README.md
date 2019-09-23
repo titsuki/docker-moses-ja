@@ -89,4 +89,48 @@ $ ./scripts/training/train-model.perl --external-bin-dir /home/moses/mosesdecode
 
 ### 7. Predict
 
-+ TBD
++ Create a webapp skelton
+```
+$ cpan Mojolicious::Lite
+$ sudo apt-get libsoap-lite-perl #TODO: Dockerfile should contain this module
+$ cd /home/moses/mosesdecoder
+$ mkdir mojo && cd mojo
+$ mojo generate lite_app
+```
+
++ Write myapp.pl as:
+```
+#!/usr/bin/env perl
+use Mojolicious::Lite;
+use XMLRPC::Lite;
+use IPC::Open2;
+use Encode qw/encode decode/;
+
+my $port = 8090;
+my $url = "http://localhost:${port}/RPC2";
+my $MOSES = '/home/moses/mosesdecoder/bin/moses2';
+my $MOSES_INI = '/home/moses/mosesdecoder/model/moses.ini';
+my ($read_fh, $write_fh);
+open2($read_fh, $write_fh, $MOSES, "-config", $MOSES_INI, "--server", "--server-port", $port);
+
+get '/:q' => sub {
+  my $c = shift;
+  my $q = $c->param('q');
+  my $encoded = SOAP::Data->type(string => encode("utf8", $q));
+  my %param = ("text" => $encoded, "align" => "true", "report-all-factors" => "true");
+  my $proxy = XMLRPC::Lite->proxy($url);
+  my $result = $proxy->call("translate", \%param)->result;
+  $c->render(json => $result);
+};
+
+app->start;
+
+```
+
++ Run a SMT server as:
+```
+$ ./myapp.pl daemon -m production -l http://*:8080
+```
+
++ Access http://localhost/8080/
+  + e.g., http://localhost/8080/hello
